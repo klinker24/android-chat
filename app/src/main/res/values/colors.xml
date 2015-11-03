@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="blue_primary_color">#5677fc</color>
+    <color name="blue_primary_color_dark">#455ede</color>
+    <color name="blue_primary_color_light">#afbfff</color>
+    <color name="blue_accent_color">#8bc34a</color>
+    <color name="blue_accent_color_light">#c5e1a5</color>
+    <color name="login_hint_color">#aaffffff</color>
+</resources>

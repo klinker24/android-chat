@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:padding="12dp"
+    >
+
+
+    <com.klinker.android.sai_chat.views.LabeledEditText
+        style="@style/LoginEditText" >
+        <EditText
+            android:id="@+id/user_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:capitalize="words"
+            android:hint="@string/user_name_hint"
+            />
+    </com.klinker.android.sai_chat.views.LabeledEditText>
+
+
+    <com.klinker.android.sai_chat.views.LabeledEditText
+        style="@style/LoginEditText">
+
+        <EditText
+            android:id="@+id/screen_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/screen_name_hint"
+            />
+
+    </com.klinker.android.sai_chat.views.LabeledEditText>
+
+
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/login"
+        android:layout_gravity="center"
+        android:layout_marginTop="32dp"
+    />
+
+</LinearLayout>

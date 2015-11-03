@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">UIowa Chat</string>
+    <string name="registration_complete">Registration Complete</string>
+    <string name="login">Login</string>
+    <string name="screen_name_hint">Username</string>
+    <string name="user_name_hint">Real Name</string>
+    <string name="new_message_activity">New Message</string>
+    <string name="refresh_conversations">Refresh Conversation</string>
+
+    <string name="user_name_missing">Real name required</string>
+    <string name="screen_name_missing">Username required</string>
+</resources>

@@ -19,11 +19,6 @@ import java.util.List;
  */
 public class DatabaseHelper {
 
-    /**
-     * TODO:
-     *
-     *      All these are very similar methods. Fill in the findAllConversations() method.
-     */
     private Context context;
 
     private MessageDataSource messageData;
@@ -73,11 +68,7 @@ public class DatabaseHelper {
      */
     public List<Thread> findAllConversations() {
 
-        // TODO #1
-        // hint: look at the other methods, which are almost the same as this.
-        // ThreadDataSource.getCursor() will return the cursor you need.
-        // then just iterate through and fill an array to return rather than returning null.
-
+        // curse over the threads that are in the database
         Cursor cursor = threadData.getCursor();
 
         final List<Thread> conversations = new ArrayList<Thread>();

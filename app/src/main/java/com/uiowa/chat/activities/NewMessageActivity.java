@@ -29,16 +29,6 @@ import java.util.Map;
  */
 public class NewMessageActivity extends AbstractToolbarActivity {
 
-    /**
-     * TODO:
-     *
-     *      1.) Fill in the activity_new_message.xml layout with the 3 views:
-     *          - AutoCompleteTextView, EditText, and ImageButton
-     *      2.) Find the userAutoComplete, messageText, and sendButton views
-     *      3.) Set the onClickListener for the sendButton
-     *      4.) Set up the auto complete for the userAutoComplete view
-     */
-
     private AutoCompleteTextView userAutoComplete;
     private EditText messageText;
     private ImageButton sendButton;
@@ -51,12 +41,8 @@ public class NewMessageActivity extends AbstractToolbarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO #1
-
+        // set the layout for the activity
         setContentView(R.layout.activity_new_message);
-
-
-        // TODO #2
 
         // find our views
         userAutoComplete = (AutoCompleteTextView) findViewById(R.id.user_auto_complete);
@@ -64,9 +50,6 @@ public class NewMessageActivity extends AbstractToolbarActivity {
         sendButton = (ImageButton) findViewById(R.id.send_button);
 
         setUpAutoComplete();
-
-
-        // TODO #3
 
         // set a click listener on the send button to send the message to the user.
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -96,11 +79,6 @@ public class NewMessageActivity extends AbstractToolbarActivity {
     }
 
     private void setUpAutoComplete() {
-
-        // TODO #4
-        // Hints: getUserList() and getAutoCompleteList() are provided. Get the lists, then
-        // create and set the adapter to the userAutoComplete view
-        // Creating generic array adapter: https://github.com/codepath/android_guides/wiki/Using-an-ArrayAdapter-with-ListView
 
         final List<User> users = getUserList();
         final List<String> autoCompleteList = getAutoCompleteList(users);

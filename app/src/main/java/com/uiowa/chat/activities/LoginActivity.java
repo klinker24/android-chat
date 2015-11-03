@@ -20,22 +20,9 @@ import com.uiowa.chat.utils.RegistrationUtils;
  */
 public class LoginActivity extends GCMRegisterActivity {
 
-    /**
-     *  TODO:
-     *
-     *      1.) Create the LoginActivity class using Android Studio's wizard
-     *      2.) fill in the activity_login.xml
-     *           - Needs a real name editText, username editText, and a login button
-     *      3.) Implement the views and the clicks into the UI
-     *
-     */
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO #2
 
         // set the layout for the activity
         setContentView(R.layout.activity_login);
@@ -44,10 +31,6 @@ public class LoginActivity extends GCMRegisterActivity {
         final EditText realName = (EditText) findViewById(R.id.screen_name) ;
         final EditText userName = (EditText) findViewById(R.id.user_name);
         final Button loginBtn = (Button) findViewById(R.id.login_button);
-
-        // TODO #3:
-        // Hint: use the hasInputError(...) function to validate constraints before attempting
-        // to register the device
 
         // sets up the button click for when you login
         loginBtn.setOnClickListener(new View.OnClickListener() {

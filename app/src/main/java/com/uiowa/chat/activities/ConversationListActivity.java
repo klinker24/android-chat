@@ -33,19 +33,6 @@ import com.uiowa.chat.utils.RegistrationUtils;
  */
 public class ConversationListActivity extends GCMRegisterActivity {
 
-    /**
-     * TODO:
-     *
-     * 1.) Create the Conversation Fragment
-     *      - FragmentTransaction class to add it to the activity
-     * 2.) Create a button in the app bar to sync data (Example is the new message button)
-     *      - Add it to the menu xml file
-     *      - Call the refreshDataFunction() when it is clicked
-     * 3.) Implement the AysncTask background work for downloading the data
-     *      - Use the thread api as an example.
-     *      - Fill in the data for the Users and the Messages
-     */
-
     // reference to the fragment for the conversation list.
     // Android uses fragments more often than activies now a days because they are easier to extend off of.
     // for example, changing this to a tablet layout, we could easily place the conversation list on the left
@@ -73,8 +60,7 @@ public class ConversationListActivity extends GCMRegisterActivity {
             startActivityForResult(new Intent(this, LoginActivity.class), RESULT_LOGIN);
         }
 
-        // TODO #1
-
+        // create the conversation list fragment
         conversationFragment = ConversationFragment.newInstance();
 
         // add the fragment to the UI in place of the conversation_fragment layout
@@ -114,9 +100,6 @@ public class ConversationListActivity extends GCMRegisterActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        // TODO #2
-
         // when the user clicks one of our menu options, this is where we define the functionality
         switch (item.getItemId()) {
             case R.id.menu_new_message:
@@ -133,7 +116,7 @@ public class ConversationListActivity extends GCMRegisterActivity {
     }
 
     private void refreshData() {
-        // not very effienent, but sometimes we are in a rush,
+        // not very efficient, but sometimes we are in a rush,
         // delete everything off device
         ThreadDataSource.getInstance(this).deleteAllThreads();
         MessageDataSource.getInstance(this).deleteAllMessages();
@@ -184,8 +167,6 @@ public class ConversationListActivity extends GCMRegisterActivity {
                 RegistrationUtils registrationUtils = new RegistrationUtils();
                 long userId = registrationUtils.getMyUserId(ConversationListActivity.this);
 
-
-                // TODO #3: (Use the thread api as an example)
                 // find and save all the threads for that user id.
                 ThreadApi threadApi = new ThreadApi();
                 JsonArray threadList = threadApi.findUserThreads(userId);

@@ -35,18 +35,6 @@ import java.util.List;
  */
 public class MessageListFragment extends Fragment {
 
-    /**
-     * TODO:
-     *
-     *      1.) inflate the fragment_message_list layout and return it from the onCreateView(...)
-     *          - Similar to how we have done it in the adapters
-     *          - Find and set the listView, replyBar, and sendButton views (View.findViewById(int))
-     *      2.) Implement the sendButton.onClickListener(...) and call the sendMessage(String) function
-     *          - grab the text to send with EditText.getText().toString()
-     *          - set the text of the reply bar back to blank
-     *      3.) Create a MessageArrayAdapter object and apply it to the list view
-     */
-
     public static final String EXTRA_THREAD_ID = "thread_id";
     public static final String EXTRA_CONVO_NAME = "convo_name";
 
@@ -93,9 +81,6 @@ public class MessageListFragment extends Fragment {
         sender = new Sender(getActivity());
         registrationUtils = new RegistrationUtils();
 
-
-        // TODO #1
-
         // inflate the view and set the container ViewGroup as the parent
         View v = inflater.inflate(R.layout.fragment_message_list, container, false);
 
@@ -108,9 +93,6 @@ public class MessageListFragment extends Fragment {
         // get the arguements and start loading the data and filling the list
         threadId = getArguments().getLong(EXTRA_THREAD_ID);
         new GetMessages().execute();
-
-
-        // TODO #2
 
         // set the functionality of the send button
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -157,9 +139,6 @@ public class MessageListFragment extends Fragment {
     }
 
     private void setMessageAdapter(List<Message> messages) {
-
-        // TODO #3
-
         MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), messages);
         listView.setAdapter(adapter);
     }

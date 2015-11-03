@@ -39,16 +39,6 @@ import java.util.List;
  */
 public class ConversationFragment extends ListFragment {
 
-    /**
-     * TODO:
-     *
-     *      1.) Finish the DatabaseHelper todos
-     *      2.) Create an BroadcastReceiver for Sender.SENT_BROADCAST and register/unregister it on the
-     *              onResume() and onPause() methods.
-     *           - Look in GCMRegisterActivity for help with IntentFilters
-     *      3.) Fill out the AsyncTask to get the threads
-     */
-
     // With fragments, we always use a default constructor, when you have things you want to send from
     // the activity to the fragment, add a bundle of 'arguments' to it. You can see an example of this
     // under the MessageListFragment.
@@ -70,9 +60,7 @@ public class ConversationFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        // TODO #2
-
-        // An small explaination of Intent filters and these types of broadcast receivers can be
+        // An small explanation of Intent filters and these types of broadcast receivers can be
         // found in the GCMRegisterActivity class
         IntentFilter filter = new IntentFilter();
         filter.addAction(Sender.SENT_BROADCAST);
@@ -88,9 +76,6 @@ public class ConversationFragment extends ListFragment {
 
     @Override
     public void onPause() {
-
-        // TODO #2
-
         // remember to unregister so that we don't get those memory leaks.
         getActivity().unregisterReceiver(sentBroadcastReceiver);
 
@@ -118,15 +103,6 @@ public class ConversationFragment extends ListFragment {
                 RegistrationUtils utils = new RegistrationUtils();
                 long currentUserId = utils.getMyUserId(getActivity());
 
-
-                // TODO #4
-                // Substeps:
-                //      1.) get the Thread object from the adapter
-                //      2.) create an intent to the MessageListActivity
-                //      3.) add the MessageListFragment.EXTRA_THREAD_ID to the intent
-                //      4.) add the MessageListFragment.EXTRA_CONVO_NAME to the intent
-                //          This should be the user's name that the conversation is with
-                //      5.) Start the activity
 
                 Thread thread = adapter.getItem(position);
 
@@ -168,11 +144,6 @@ public class ConversationFragment extends ListFragment {
     class GetThreads extends AsyncTask<Void, Void, List<Thread>> {
         @Override
         protected List<Thread> doInBackground(Void... arg0) {
-
-            // TODO #3
-            // Hint: remember the database helper class and use the
-            // getSortedList(List<Thread>) method
-
             return getSortedList(new DatabaseHelper(getActivity()).findAllConversations());
         }
 

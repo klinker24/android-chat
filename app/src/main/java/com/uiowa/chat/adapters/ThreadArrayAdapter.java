@@ -35,19 +35,6 @@ import java.util.List;
  */
 public class ThreadArrayAdapter extends ArrayAdapter<Thread> {
 
-    /**
-     *  TODO:
-     *
-     *      1.) fill in the conversation_item.xml file with how you want your conversation items to look
-     *      2.) add the views to the holder
-     *          - I would make 3 (name, messageHint, and picture), but feel free to customize this
-     *              however you want!
-*           3.) Implement getCount() and getItem(int)
-     *      4.) Create a ViewHolder object, fill in the children, then set the tag of the view
-     *          - v.setTag(holder)
- *          5.) Fill in the fields of the ViewHolder
-     */
-
     protected Context context;
     private LayoutInflater inflater;
 
@@ -60,9 +47,6 @@ public class ThreadArrayAdapter extends ArrayAdapter<Thread> {
     // a TextView with a hint at the latest message (Message.getLatestMessage())
     // and an ImageView that will hold a dummy avatar for the user
     public static class ViewHolder {
-
-        // TODO #2
-
         public TextView name;
         public TextView messageHint;
         public ImageView picture;
@@ -80,9 +64,6 @@ public class ThreadArrayAdapter extends ArrayAdapter<Thread> {
         RegistrationUtils registrationUtils = new RegistrationUtils();
         this.userId = registrationUtils.getMyUserId(context);
     }
-
-    // TODO #3
-    // Fill in what these methods return... instead of 0 and null.
 
     // returns the total size of the list
     // NOTE: total number in the list, NOT what is currently on the UI
@@ -105,9 +86,6 @@ public class ThreadArrayAdapter extends ArrayAdapter<Thread> {
 
         // inflate the layout
         v = inflater.inflate(R.layout.conversation_item, viewGroup, false);
-
-
-        // TODO #4
 
         // create a new view holder object
         final ViewHolder holder = new ViewHolder();
@@ -135,9 +113,6 @@ public class ThreadArrayAdapter extends ArrayAdapter<Thread> {
         if(otherId == this.userId) {
             otherUser = conversation.getUser2();
         }
-
-
-        // TODO #5
 
         // display their name
         holder.name.setText(otherUser.getRealName() + " (" + otherUser.getUsername() + ")");

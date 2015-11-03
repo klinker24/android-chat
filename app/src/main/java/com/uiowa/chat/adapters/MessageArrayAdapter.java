@@ -35,22 +35,6 @@ import java.util.List;
  */
 public class MessageArrayAdapter extends ArrayAdapter<Message> {
 
-    /**
-     * TODO:
-     *
-     *      1.) fill in the message_item.xml
-     *          - I just used one TextView, nothing fancy, but feel free to check out the Message class
-     *              to see what information is available to you
-     *      2.) Fill in the newView() method.
-     *          - Extremely similar to the ThreadArrayAdapter method
-     *      3.) Fill in the bindView(..) method
-     *          - You can use LinearLayout.setGravity(Gravity.RIGHT or Gravity.LEFT) to help you
-     *              with the alignment of the messages depending on whether they are sent or incoming messages
-     *              for the current user
-     *      4.) Fill in the getView(...) method
-     *          - Again, very similar to the ThreadArrayAdapter
-     */
-
     protected Context context;
     private LayoutInflater inflater;
 
@@ -100,9 +84,6 @@ public class MessageArrayAdapter extends ArrayAdapter<Message> {
     public View newView(ViewGroup viewGroup) {
         View v;
 
-
-        // TODO #2
-
         // inflate the layout
         v = inflater.inflate(R.layout.message_item, viewGroup, false);
 
@@ -122,8 +103,6 @@ public class MessageArrayAdapter extends ArrayAdapter<Message> {
 
     // This is where we actually send the message objects information to the UI for the user to view
     public void bindView(final View view, final Message message) {
-
-        // TODO #3
 
         final ViewHolder holder = (ViewHolder) view.getTag();
 
@@ -146,9 +125,6 @@ public class MessageArrayAdapter extends ArrayAdapter<Message> {
         // We use the ViewHolder pattern to increase performance.
         // It is by far the most common practice.
         View v;
-
-
-        // TODO #4
 
         if (convertView == null) {
             v = newView(parent);

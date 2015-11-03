@@ -21,17 +21,6 @@ import com.uiowa.chat.fragments.MessageListFragment;
  */
 public class MessageListActivity extends AbstractToolbarActivity {
 
-    /**
-     *  TODO:
-     *
-     *      1.) create the message list fragment and attach it using the FragmentTransaction
-     *          - Don't forget to bundle the threadId when creating it
-     *          - Almost identical to what we did in the ConversationListActivity
-     *      2.) set the activity title:
-     *          - AbstractToolbarActivity.setActivityTitle(String)
-     *      3.) What should the "<-" arrow in the top of the app bar do?
-     */
-
     private MessageListFragment messageListFragment;
 
     @Override
@@ -49,16 +38,12 @@ public class MessageListActivity extends AbstractToolbarActivity {
         long threadId = getIntent().getLongExtra(MessageListFragment.EXTRA_THREAD_ID, -1);
 
 
-        // TODO #1
-
+        // create and attach the message list fragment
         messageListFragment =  MessageListFragment.getInstance(threadId);
 
         FragmentTransaction trans = getFragmentManager().beginTransaction();
         trans.replace(R.id.conversation_fragment, messageListFragment);
         trans.commit();
-
-
-        // TODO #2
 
         // set the activity title to what we found earlier
         setActivityTitle(convoTitle);
@@ -74,7 +59,7 @@ public class MessageListActivity extends AbstractToolbarActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
 
-                // TODO #3
+                // handles the '<-' arrow in the app bar
                 finish();
 
                 return true;

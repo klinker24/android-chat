@@ -37,13 +37,6 @@ import com.uiowa.chat.utils.api.Sender;
  */
 public class PushNotificationService extends IntentService {
 
-    /**
-     * TODO:
-     *
-     *      1.) Implement the admin notifications. Just handling the text of the message
-     *      2.) Implement the user to user notification by creating it from scratch with a
-     *          reference to the Message object
-     */
     private static final int ADMIN_MESSAGE_THREAD_ID = -1;
 
     public static final int ADMIN_NOTIFICATION_ID = 1;
@@ -121,17 +114,12 @@ public class PushNotificationService extends IntentService {
     // send the notification from the administrator, don't save anything to the database
     private void makeAdminNotification(String message) {
 
-        // All nofifications need at least three things:
+        // All notifications need at least three things:
         //      - Small icon
         //      - Content title
         //      - Content Text
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
-
-        // TODO #1
-        // Help: http://developer.android.com/training/notify-user/build-notification.html
-        // If you are into it, make a BigTextStyle notification: http://developer.android.com/training/notify-user/expanded.html
-        // Big text will allow the user to swipe down on the notification (with an android device on 4.1+) to display more text
 
         builder.setSmallIcon(R.drawable.sb_icon);
         builder.setContentTitle("SAI Message");
@@ -160,9 +148,7 @@ public class PushNotificationService extends IntentService {
 
     private void makeMessageNotification(Message message) {
 
-
-        // TODO #2
-
+        // use the builder to create the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.sb_icon);
         builder.setContentTitle(message.getSender().getRealName());
@@ -172,6 +158,7 @@ public class PushNotificationService extends IntentService {
         Intent resultIntent = new Intent(this, ConversationListActivity.class);
         resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
+        // pending intents are used so specify the action we want for clicks on the notification
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
                         this,

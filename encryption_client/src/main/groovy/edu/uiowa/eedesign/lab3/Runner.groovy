@@ -17,17 +17,6 @@
 package edu.uiowa.eedesign.lab3
 
 import org.whispersystems.libaxolotl.AxolotlAddress
-import org.whispersystems.libaxolotl.SessionBuilder
-import org.whispersystems.libaxolotl.SessionCipher
-import org.whispersystems.libaxolotl.ecc.Curve
-import org.whispersystems.libaxolotl.ecc.ECKeyPair
-import org.whispersystems.libaxolotl.protocol.CiphertextMessage
-import org.whispersystems.libaxolotl.protocol.PreKeyWhisperMessage
-import org.whispersystems.libaxolotl.protocol.WhisperMessage
-import org.whispersystems.libaxolotl.state.AxolotlStore
-import org.whispersystems.libaxolotl.state.PreKeyBundle
-import org.whispersystems.libaxolotl.state.PreKeyRecord
-import org.whispersystems.libaxolotl.state.SignedPreKeyRecord
 
 import java.lang.reflect.Field
 
@@ -39,60 +28,46 @@ public class Runner {
     public static void main(String[] args) {
         enableSecurity()
 
-        AxolotlStore aliceStore = new TestInMemoryAxolotlStore()
-        SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS)
+        SenderSession aliceSession = new SenderSession()
+        ReceiverSession bobSession = new ReceiverSession()
 
-        final AxolotlStore bobStore = new TestInMemoryAxolotlStore()
-        ECKeyPair bobPreKeyPair = Curve.generateKeyPair()
-        ECKeyPair bobSignedPreKeyPair = Curve.generateKeyPair()
-        byte[] bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
-                bobSignedPreKeyPair.getPublicKey().serialize())
+        aliceSession.requestPreKey()
+        Distributable distributable = bobSession.generatePreKey()
 
-        PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
-                2, bobPreKeyPair.getPublicKey(),
-                3, bobSignedPreKeyPair.getPublicKey(),
-                bobSignedPreKeySignature,
-                bobStore.getIdentityKeyPair().getPublicKey())
-
-        aliceSessionBuilder.process(bobPreKey)
+        aliceSession.initSession(distributable, BOB_ADDRESS)
+        bobSession.initSession(distributable, ALICE_ADDRESS)
 
         String originalMessage = "Testing 1, 2, 3!"
-        SessionCipher aliceSessionCipher = new SessionCipher(aliceStore, BOB_ADDRESS)
-        CiphertextMessage outgoingMessage = aliceSessionCipher.encrypt(originalMessage.getBytes())
-
-        PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(outgoingMessage.serialize())
-        bobStore.storePreKey(2, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair))
-        bobStore.storeSignedPreKey(3, new SignedPreKeyRecord(3, System.currentTimeMillis(), bobSignedPreKeyPair, bobSignedPreKeySignature))
-
-        SessionCipher bobSessionCipher = new SessionCipher(bobStore, ALICE_ADDRESS)
-        byte[] plaintext = bobSessionCipher.decrypt(incomingMessage)
+        byte[] encryptedMessage = aliceSession.encryptMessage(originalMessage)
+        String decryptedMessage = bobSession.decryptMessage(encryptedMessage)
 
         println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${new String(plaintext)}"
+        println "Decoded Message:  ${decryptedMessage}"
         println()
 
         originalMessage = "Hello world!"
-        outgoingMessage = bobSessionCipher.encrypt(originalMessage.getBytes())
-        plaintext = aliceSessionCipher.decrypt(new WhisperMessage(outgoingMessage.serialize()))
+        encryptedMessage = bobSession.encryptMessage(originalMessage)
+        decryptedMessage = aliceSession.decryptMessage(encryptedMessage)
 
         println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${new String(plaintext)}"
+        println "Decoded Message:  ${decryptedMessage}"
         println()
 
         originalMessage = "Third message."
-        outgoingMessage = aliceSessionCipher.encrypt(originalMessage.getBytes())
-        plaintext = bobSessionCipher.decrypt(new WhisperMessage(outgoingMessage.serialize()))
+        encryptedMessage = bobSession.encryptMessage(originalMessage)
+        decryptedMessage = aliceSession.decryptMessage(encryptedMessage)
 
         println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${new String(plaintext)}"
+        println "Decoded Message:  ${decryptedMessage}"
         println()
 
-        originalMessage = "And one last one for shits and giggles."
-        outgoingMessage = bobSessionCipher.encrypt(originalMessage.getBytes())
-        plaintext = aliceSessionCipher.decrypt(new WhisperMessage(outgoingMessage.serialize()))
+        originalMessage = "And one last one for shits and giggles"
+        encryptedMessage = aliceSession.encryptMessage(originalMessage)
+        decryptedMessage = bobSession.decryptMessage(encryptedMessage)
 
         println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${new String(plaintext)}"
+        println "Decoded Message:  ${decryptedMessage}"
+        println()
     }
 
     private static void enableSecurity() {

@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package edu.uiowa.eedesign.lab3;
+package edu.uiowa.eedesign.lab3
 
-import org.whispersystems.libaxolotl.IdentityKeyPair;
-import org.whispersystems.libaxolotl.util.KeyHelper;
+import org.whispersystems.libaxolotl.IdentityKeyPair
+import org.whispersystems.libaxolotl.state.impl.InMemoryAxolotlStore
+import org.whispersystems.libaxolotl.util.KeyHelper
 
-public class TestInMemoryAxolotlStore extends org.whispersystems.libaxolotl.state.impl.InMemoryAxolotlStore {
+public class TestInMemoryAxolotlStore extends InMemoryAxolotlStore {
+
     public TestInMemoryAxolotlStore() {
-        super(generateIdentityKeyPair(), generateRegistrationId());
+        super(generateIdentityKeyPair(), generateRegistrationId())
     }
 
     private static IdentityKeyPair generateIdentityKeyPair() {
-        return KeyHelper.generateIdentityKeyPair();
+        return KeyHelper.generateIdentityKeyPair()
     }
 
     private static int generateRegistrationId() {
-        return KeyHelper.generateRegistrationId(false);
+        return KeyHelper.generateRegistrationId(false)
     }
+
 }

@@ -22,52 +22,47 @@ import java.lang.reflect.Field
 
 public class Runner {
 
-    private static final AxolotlAddress ALICE_ADDRESS = new AxolotlAddress("alice", 1)
-    private static final AxolotlAddress BOB_ADDRESS = new AxolotlAddress("bob", 1)
-
     public static void main(String[] args) {
         enableSecurity()
 
-        SenderSession aliceSession = new SenderSession()
-        ReceiverSession bobSession = new ReceiverSession()
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))
 
-        aliceSession.requestPreKey()
-        Distributable distributable = bobSession.generatePreKey()
+        print 'User 1 name: '
+        AxolotlAddress user1 = new AxolotlAddress(reader.readLine(), 1)
+        print 'User 2 name: '
+        AxolotlAddress user2 = new AxolotlAddress(reader.readLine(), 1)
 
-        aliceSession.initSession(distributable, BOB_ADDRESS)
-        bobSession.initSession(distributable, ALICE_ADDRESS)
+        SenderSession user1Session = new SenderSession()
+        ReceiverSession user2Session = new ReceiverSession()
 
-        String originalMessage = "Testing 1, 2, 3!"
-        byte[] encryptedMessage = aliceSession.encryptMessage(originalMessage)
-        String decryptedMessage = bobSession.decryptMessage(encryptedMessage)
+        user1Session.requestPreKey()
+        Distributable distributable = user2Session.generatePreKey()
 
-        println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${decryptedMessage}"
-        println()
+        user1Session.initSession(distributable, user2)
+        user2Session.initSession(distributable, user1)
 
-        originalMessage = "Hello world!"
-        encryptedMessage = bobSession.encryptMessage(originalMessage)
-        decryptedMessage = aliceSession.decryptMessage(encryptedMessage)
+        String message = null
+        boolean sendUser1 = true
 
-        println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${decryptedMessage}"
-        println()
+        while (true) {
+            print "Enter message for ${sendUser1 ? user2.name : user1.name}: "
+            message = reader.readLine()
 
-        originalMessage = "Third message."
-        encryptedMessage = bobSession.encryptMessage(originalMessage)
-        decryptedMessage = aliceSession.decryptMessage(encryptedMessage)
+            if (message.equals("exit")) {
+                break
+            }
 
-        println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${decryptedMessage}"
-        println()
+            if (sendUser1) {
+                message = user2Session.decryptMessage(user1Session.encryptMessage(message))
+            } else {
+                message = user1Session.decryptMessage(user2Session.encryptMessage(message))
+            }
 
-        originalMessage = "And one last one for shits and giggles"
-        encryptedMessage = aliceSession.encryptMessage(originalMessage)
-        decryptedMessage = bobSession.decryptMessage(encryptedMessage)
+            println "${sendUser1 ? user2.name : user1.name} received: ${message}\n"
+            sendUser1 = !sendUser1
+        }
 
-        println "Original Message: ${originalMessage}"
-        println "Decoded Message:  ${decryptedMessage}"
-        println()
+        reader.close()
     }
 
     private static void enableSecurity() {

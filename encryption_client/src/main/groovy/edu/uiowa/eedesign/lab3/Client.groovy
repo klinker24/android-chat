@@ -17,26 +17,17 @@
 package edu.uiowa.eedesign.lab3
 
 import org.whispersystems.libaxolotl.AxolotlAddress
-import org.whispersystems.libaxolotl.IdentityKeyPair
-import org.whispersystems.libaxolotl.state.PreKeyRecord
-import org.whispersystems.libaxolotl.state.SignedPreKeyRecord
-import org.whispersystems.libaxolotl.util.KeyHelper
+import org.whispersystems.libaxolotl.ecc.ECKeyPair
+import org.whispersystems.libaxolotl.state.PreKeyBundle
+import org.whispersystems.libaxolotl.state.impl.InMemoryAxolotlStore
 
 public class Client {
 
-    IdentityKeyPair identityKeyPair
-    int registrationId
-    List<PreKeyRecord> preKeys
-    PreKeyRecord lastResortKey
-    SignedPreKeyRecord signedPreKey
+    InMemoryAxolotlStore store
     AxolotlAddress address
 
     public Client(String name) {
-        this.identityKeyPair = KeyHelper.generateIdentityKeyPair()
-        this.registrationId = KeyHelper.generateRegistrationId(false)
-        this.preKeys = KeyHelper.generatePreKeys(0, 100)
-        this.lastResortKey = KeyHelper.generateLastResortPreKey()
-        this.signedPreKey = KeyHelper.generateSignedPreKey(identityKeyPair, 5)
+        this.store = new TestInMemoryAxolotlStore()
         this.address = new AxolotlAddress(name, 1)
     }
 

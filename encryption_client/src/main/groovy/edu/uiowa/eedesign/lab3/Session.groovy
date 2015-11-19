@@ -18,55 +18,49 @@ package edu.uiowa.eedesign.lab3
 
 import org.whispersystems.libaxolotl.SessionBuilder
 import org.whispersystems.libaxolotl.SessionCipher
+import org.whispersystems.libaxolotl.ecc.ECKeyPair
 import org.whispersystems.libaxolotl.protocol.PreKeyWhisperMessage
-import org.whispersystems.libaxolotl.state.AxolotlStore
 import org.whispersystems.libaxolotl.state.PreKeyBundle
-import org.whispersystems.libaxolotl.state.SessionRecord
+import org.whispersystems.libaxolotl.state.PreKeyRecord
+import org.whispersystems.libaxolotl.state.SignedPreKeyRecord
+
+import java.security.interfaces.ECKey
 
 public class Session {
 
-    private Client client
+    private Client alice
+    private Client bob
     private SessionCipher cipher
+    private Distributable distributable
 
-    public Session(Client client) {
-        this.client = client
+    public Session(Client alice, Client bob) {
+        this.alice = alice
+        this.bob = bob
     }
 
-    public void buildSession(Client otherClient) {
-        AxolotlStore store = new LabAxolotlStore(client)
-        SessionBuilder builder = new SessionBuilder(store, otherClient.address)
+    public void buildSession(Distributable distributable) {
+        SessionBuilder builder = new SessionBuilder(alice.store, bob.address)
+        builder.process(distributable.preKey)
 
-        // store the current session so it isn't forgotten
-        SessionRecord record = new SessionRecord()
-        store.storeSession(otherClient.address, record)
-
-        PreKeyBundle bundle = new PreKeyBundle(
-                otherClient.registrationId,
-                1,
-                otherClient.preKeys.get(0).id,
-                otherClient.preKeys.get(0).keyPair.publicKey,
-                otherClient.signedPreKey.id,
-                otherClient.signedPreKey.keyPair.publicKey,
-                otherClient.signedPreKey.signature,
-                otherClient.identityKeyPair.publicKey
-        )
-
-        builder.process(bundle)
-
-        cipher = new SessionCipher(store, otherClient.address)
+        this.cipher = new SessionCipher(alice.store, bob.address)
+        this.distributable = distributable
     }
 
     public byte[] encryptMessage(String message) {
-        if (cipher == null) {
-            throw new RuntimeException("Cipher not built yet, you need to call buildSession first()")
-        }
-
         return cipher.encrypt(message.getBytes()).serialize()
     }
 
-    public String decryptMessage(byte[] message, Client otherClient) {
-        PreKeyWhisperMessage cipherMessage = new PreKeyWhisperMessage(message)
-        return cipher.decrypt(cipherMessage)
+    public String decryptMessage(byte[] message) {
+        PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(message)
+
+        alice.store.storePreKey(2, new PreKeyRecord(distributable.preKey.getPreKeyId(),
+                distributable.preKeyPair))
+        alice.store.storeSignedPreKey(3, new SignedPreKeyRecord(3,
+                System.currentTimeMillis(), distributable.signedPreKeyPair,
+                distributable.signedPreKeyPairSignature))
+
+        byte[] plaintext = cipher.decrypt(incomingMessage)
+        return new String(plaintext)
     }
 
 }

@@ -18,9 +18,7 @@ package edu.uiowa.eedesign.lab3
 
 import org.whispersystems.libaxolotl.SessionBuilder
 import org.whispersystems.libaxolotl.SessionCipher
-import org.whispersystems.libaxolotl.protocol.CiphertextMessage
 import org.whispersystems.libaxolotl.protocol.PreKeyWhisperMessage
-import org.whispersystems.libaxolotl.protocol.WhisperMessage
 import org.whispersystems.libaxolotl.state.AxolotlStore
 import org.whispersystems.libaxolotl.state.PreKeyBundle
 import org.whispersystems.libaxolotl.state.SessionRecord

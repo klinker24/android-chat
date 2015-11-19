@@ -49,39 +49,26 @@ public class Runner {
                 bobSignedPreKeyPair.getPublicKey().serialize())
 
         PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
-                31337, bobPreKeyPair.getPublicKey(),
-                22, bobSignedPreKeyPair.getPublicKey(),
+                2, bobPreKeyPair.getPublicKey(),
+                3, bobSignedPreKeyPair.getPublicKey(),
                 bobSignedPreKeySignature,
                 bobStore.getIdentityKeyPair().getPublicKey())
 
         aliceSessionBuilder.process(bobPreKey)
 
-        assertTrue(aliceStore.containsSession(BOB_ADDRESS))
-        assertTrue(aliceStore.loadSession(BOB_ADDRESS).getSessionState().getSessionVersion() == 3)
-
         final String originalMessage = "Hello World!"
         SessionCipher aliceSessionCipher = new SessionCipher(aliceStore, BOB_ADDRESS)
         CiphertextMessage outgoingMessage = aliceSessionCipher.encrypt(originalMessage.getBytes())
 
-        assertTrue(outgoingMessage.getType() == CiphertextMessage.PREKEY_TYPE)
-
         PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(outgoingMessage.serialize())
-        bobStore.storePreKey(31337, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair))
-        bobStore.storeSignedPreKey(22, new SignedPreKeyRecord(22, System.currentTimeMillis(), bobSignedPreKeyPair, bobSignedPreKeySignature))
+        bobStore.storePreKey(2, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair))
+        bobStore.storeSignedPreKey(3, new SignedPreKeyRecord(3, System.currentTimeMillis(), bobSignedPreKeyPair, bobSignedPreKeySignature))
 
         SessionCipher bobSessionCipher = new SessionCipher(bobStore, ALICE_ADDRESS)
-        byte[] plaintext = bobSessionCipher.decrypt(incomingMessage, new DecryptionCallback() {
-            @Override
-            public void handlePlaintext(byte[] plaintext) {
-                assertTrue(originalMessage.equals(new String(plaintext)))
-                assertFalse(bobStore.containsSession(ALICE_ADDRESS))
-            }
-        })
+        byte[] plaintext = bobSessionCipher.decrypt(incomingMessage)
 
-        assertTrue(bobStore.containsSession(ALICE_ADDRESS))
-        assertTrue(bobStore.loadSession(ALICE_ADDRESS).getSessionState().getSessionVersion() == 3)
-        assertTrue(bobStore.loadSession(ALICE_ADDRESS).getSessionState().getAliceBaseKey() != null)
-        assertTrue(originalMessage.equals(new String(plaintext)))
+        println "Original Message: ${originalMessage}"
+        println "Decoded Message:  ${new String(plaintext)}"
     }
 
     private static void enableSecurity() {
@@ -92,18 +79,6 @@ public class Runner {
             field.set(null, java.lang.Boolean.FALSE)
         } catch (Exception ex) {
             ex.printStackTrace()
-        }
-    }
-
-    private static void assertTrue(boolean b) {
-        if (!b) {
-            throw new RuntimeException("must be true")
-        }
-    }
-
-    private static void assertFalse(boolean b) {
-        if (b) {
-            throw new RuntimeException("must be false")
         }
     }
 

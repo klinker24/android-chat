@@ -16,10 +16,7 @@
 
 package edu.uiowa.eedesign.lab3;
 
-import org.whispersystems.libaxolotl.IdentityKey;
 import org.whispersystems.libaxolotl.IdentityKeyPair;
-import org.whispersystems.libaxolotl.ecc.Curve;
-import org.whispersystems.libaxolotl.ecc.ECKeyPair;
 import org.whispersystems.libaxolotl.util.KeyHelper;
 
 public class TestInMemoryAxolotlStore extends org.whispersystems.libaxolotl.state.impl.InMemoryAxolotlStore {
@@ -28,10 +25,7 @@ public class TestInMemoryAxolotlStore extends org.whispersystems.libaxolotl.stat
     }
 
     private static IdentityKeyPair generateIdentityKeyPair() {
-        ECKeyPair identityKeyPairKeys = Curve.generateKeyPair();
-
-        return new IdentityKeyPair(new IdentityKey(identityKeyPairKeys.getPublicKey()),
-                identityKeyPairKeys.getPrivateKey());
+        return KeyHelper.generateIdentityKeyPair();
     }
 
     private static int generateRegistrationId() {

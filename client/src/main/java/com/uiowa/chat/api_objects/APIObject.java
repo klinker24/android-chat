@@ -20,7 +20,7 @@ public class APIObject {
 
     protected static final String DELETE_PASSWORD = "sai_admin";
 
-    protected static final String DOMAIN = "sai-chat-server";
+    protected static final String DOMAIN = "polished-citron-111813";
     protected static final String API_VERSION = "v1";
     protected static final String TOP_LEVEL = "https://" + DOMAIN + ".appspot.com/_ah/api/";
 

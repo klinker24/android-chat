@@ -19,8 +19,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Named;
 
-import sun.rmi.runtime.Log;
-
 @Api(name = "messaging", version = "v1", namespace = @ApiNamespace(ownerDomain = "sai_chat.android.klinker.com", ownerName = "sai_chat.android.klinker.com", packagePath = ""))
 public class MessageEndpoint {
 

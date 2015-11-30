@@ -9,15 +9,18 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.uiowa.chat.R;
 import com.uiowa.chat.activities.ConversationListActivity;
 import com.uiowa.chat.api_objects.ThreadApi;
+import com.uiowa.chat.api_objects.UserApi;
 import com.uiowa.chat.data.Thread;
 import com.uiowa.chat.data.DatabaseHelper;
 import com.uiowa.chat.data.Message;
 import com.uiowa.chat.data.sql.ThreadDataSource;
 import com.uiowa.chat.data.sql.MessageDataSource;
+import com.uiowa.chat.data.sql.UserDataSource;
 import com.uiowa.chat.receivers.PushNotificationReceiver;
 import com.uiowa.chat.utils.api.Sender;
 
@@ -70,6 +73,17 @@ public class PushNotificationService extends IntentService {
                 object.setTimestamp(time);
                 object.setSenderId(senderId);
                 object.fillSender();
+
+                if (object.getSender() == null) {
+                    UserApi userApi = new UserApi();
+                    JsonArray userList = userApi.findAllUsers();
+                    if(userList != null) {
+                        UserDataSource dataSource = UserDataSource.getInstance(this);
+                        dataSource.createUsers(userList);
+                    }
+
+                    object.fillSender();
+                }
 
                 // save the message to our database
                 MessageDataSource source = MessageDataSource.getInstance(this);

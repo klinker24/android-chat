@@ -19,7 +19,7 @@ public class DataPopulator {
 
         UserApi user = new UserApi();
         JsonArray array = user.findAllUsers();
-        List<Long> userIds =  new ArrayList<>();
+        List<Long> userIds =  new ArrayList<Long>();
 
         if (KEEP_DATA) {
             for (JsonElement u : array) {

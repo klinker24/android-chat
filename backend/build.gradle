@@ -19,8 +19,8 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'appengine'
 
-sourceCompatibility = JavaVersion.VERSION_1_6
-targetCompatibility = JavaVersion.VERSION_1_6
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
 
 dependencies {
     appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.14'

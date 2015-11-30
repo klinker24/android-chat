@@ -31,7 +31,7 @@ public class TestInMemoryAxolotlStore extends InMemoryAxolotlStore {
     }
 
     private static int generateRegistrationId() {
-        return KeyHelper.generateRegistrationId(false)
+        return KeyHelper.generateRegistrationId(false);
     }
 
 }

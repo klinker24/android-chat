@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.gson.JsonObject;
-import com.klinker.android.sai_chat.api_objects.UserApi;
+import com.uiowa.chat.api_objects.UserApi;
 
 import java.io.IOException;
 

@@ -115,7 +115,9 @@ public class ThreadArrayAdapter extends ArrayAdapter<Thread> {
         }
 
         // display their name
-        holder.name.setText(otherUser.getRealName() + " (" + otherUser.getUsername() + ")");
+        if (otherUser != null) {
+            holder.name.setText(otherUser.getRealName() + " (" + otherUser.getUsername() + ")");
+        }
 
         // latest message should never be null, but check just in case
         if (conversation.getLatestMessage() != null) {

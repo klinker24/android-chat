@@ -7,7 +7,7 @@
     >
 
 
-    <com.klinker.android.sai_chat.views.LabeledEditText
+    <com.uiowa.chat.views.LabeledEditText
         style="@style/LoginEditText" >
         <EditText
             android:id="@+id/user_name"
@@ -16,10 +16,10 @@
             android:capitalize="words"
             android:hint="@string/user_name_hint"
             />
-    </com.klinker.android.sai_chat.views.LabeledEditText>
+    </com.uiowa.chat.views.LabeledEditText>
 
 
-    <com.klinker.android.sai_chat.views.LabeledEditText
+    <com.uiowa.chat.views.LabeledEditText
         style="@style/LoginEditText">
 
         <EditText
@@ -29,7 +29,7 @@
             android:hint="@string/screen_name_hint"
             />
 
-    </com.klinker.android.sai_chat.views.LabeledEditText>
+    </com.uiowa.chat.views.LabeledEditText>
 
 
     <Button

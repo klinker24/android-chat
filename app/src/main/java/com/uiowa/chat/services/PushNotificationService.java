@@ -19,6 +19,7 @@ import com.uiowa.chat.api_objects.UserApi;
 import com.uiowa.chat.data.Thread;
 import com.uiowa.chat.data.DatabaseHelper;
 import com.uiowa.chat.data.Message;
+import com.uiowa.chat.data.User;
 import com.uiowa.chat.data.sql.ThreadDataSource;
 import com.uiowa.chat.data.sql.MessageDataSource;
 import com.uiowa.chat.data.sql.UserDataSource;
@@ -66,11 +67,15 @@ public class PushNotificationService extends IntentService {
             Log.v(TAG, "decoded message: " + extras.getString("message").replace(" ", "+"));
 
             // each push notification contains the message details
-            String message = manager.decrypt(extras.getString("message").replace(" ", "+"));
             Long threadId = Long.parseLong(extras.getString("thread_id"));
             Long time = Long.parseLong(extras.getString("time"));
             Long messageId = Long.parseLong(extras.getString("message_id"));
             Long senderId = Long.parseLong(extras.getString("sender_id"));
+
+            DatabaseHelper databaseHelper = new DatabaseHelper(this);
+            User sender = databaseHelper.findUser(senderId);
+            String message = manager.decrypt(sender.getUsername(),
+                    extras.getString("message").replace(" ", "+"));
 
             if (!handledAdminMessage(threadId, message)) {
 

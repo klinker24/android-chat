@@ -90,13 +90,14 @@ public class Sender extends BaseUtils {
         });
     }
 
-    public void sendThreadedMessage(final Long threadId, final Long senderId, final String message) {
+    public void sendThreadedMessage(final String toUsername, final Long threadId,
+                                    final Long senderId, final String message) {
         doInBackground(new Runnable() {
             @Override
             public void run() {
                 ChatApplication application = (ChatApplication) context.getApplicationContext();
                 SessionManager manager = application.getSessionManager();
-                String encryptedMessage = manager.encrypt(message);
+                String encryptedMessage = manager.encrypt(toUsername, message);
 
                 Log.v(TAG, "encoded message to send: " + encryptedMessage);
 

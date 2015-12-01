@@ -42,6 +42,8 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "SmsBroadcastReceiver";
     private static final String SMS_BUNDLE = "pdus";
 
+    public static final String BROADCAST_CONVERSATION_INITIALIZED = "com.uiowa.chat.ENCRYPTION_INITIALIZED";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle intentExtras = intent.getExtras();
@@ -106,6 +108,8 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 SessionManager manager = application.getSessionManager();
                 manager.initSenderSession(Distributable.parseString(message), user);
                 Log.v(TAG, "initialized sending session, ready to send messages");
+
+                context.sendBroadcast(new Intent(BROADCAST_CONVERSATION_INITIALIZED));
             }
         }
     }

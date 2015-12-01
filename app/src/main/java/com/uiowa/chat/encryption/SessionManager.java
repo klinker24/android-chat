@@ -20,24 +20,29 @@ import android.util.Base64;
 
 import org.whispersystems.libaxolotl.AxolotlAddress;
 
+import java.util.HashMap;
+
 public class SessionManager {
 
-    private Session session;
+    private HashMap<String, Session> sessions;
 
-    public Session getSession() {
-        return session;
+    public SessionManager() {
+        sessions = new HashMap<String, Session>();
     }
 
-    public boolean isCreated() {
-        return session != null;
+    public boolean isCreated(String address) {
+        return sessions.containsKey(address);
     }
 
     public Distributable initReceiverSession(String senderAddress) {
-        session = new ReceiverSession();
+        Session session = new ReceiverSession();
 
         try {
             Distributable distributable = ((ReceiverSession) session).generatePreKey();
             session.initSession(distributable, new AxolotlAddress(senderAddress, 1));
+
+            sessions.put(senderAddress, session);
+
             return distributable;
         } catch (Exception e) {
             throw new RuntimeException("failed to initialize receiver session", e);
@@ -45,22 +50,23 @@ public class SessionManager {
     }
 
     public void initSenderSession(Distributable distributable, String receiverAddress) {
-        session = new SenderSession();
+        Session session = new SenderSession();
 
         try {
             session.initSession(distributable, new AxolotlAddress(receiverAddress, 1));
+            sessions.put(receiverAddress, session);
         } catch (Exception e) {
             throw new RuntimeException("failed to initialize receiver session", e);
         }
     }
 
-    public String encrypt(String message) {
-        return Base64.encodeToString(session.encryptMessage(message), 0);
+    public String encrypt(String address, String message) {
+        return Base64.encodeToString(sessions.get(address).encryptMessage(message), 0);
     }
 
-    public String decrypt(String message) {
+    public String decrypt(String address, String message) {
         try {
-            return session.decryptMessage(Base64.decode(message, 0));
+            return sessions.get(address).decryptMessage(Base64.decode(message, 0));
         } catch (Exception e) {
             throw new RuntimeException("failed to decrypt message", e);
         }

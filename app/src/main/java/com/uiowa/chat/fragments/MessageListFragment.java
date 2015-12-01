@@ -20,12 +20,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.uiowa.chat.ChatApplication;
 import com.uiowa.chat.R;
 import com.uiowa.chat.adapters.MessageArrayAdapter;
 import com.uiowa.chat.data.DatabaseHelper;
 import com.uiowa.chat.data.Message;
+import com.uiowa.chat.data.Thread;
 import com.uiowa.chat.data.User;
 import com.uiowa.chat.data.sql.MessageDataSource;
+import com.uiowa.chat.receivers.SmsBroadcastReceiver;
 import com.uiowa.chat.utils.RegistrationUtils;
 import com.uiowa.chat.utils.api.Sender;
 
@@ -69,15 +72,49 @@ public class MessageListFragment extends Fragment {
         }
     };
 
+    private BroadcastReceiver encryptionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            encryptionEnabled = true;
+
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.hide();
+            }
+        }
+    };
+
     private Sender sender;
     private RegistrationUtils registrationUtils;
 
     private long threadId;
+    private String username;
 
     private ListView listView;
     private EditText replyBar;
     private ImageButton sendButton;
     private ProgressDialog progressDialog;
+    private boolean encryptionEnabled;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        DatabaseHelper helper = new DatabaseHelper(getActivity());
+        RegistrationUtils utils = new RegistrationUtils();
+
+        threadId = getArguments().getLong(EXTRA_THREAD_ID);
+        Thread thread = helper.findConversation(threadId);
+        long currentUserId = utils.getMyUserId(getActivity());
+
+        if (thread.getUser1Id() == currentUserId) {
+            username = thread.getUser2().getUsername();
+        } else {
+            username = thread.getUser1().getUsername();
+        }
+
+        ChatApplication application = (ChatApplication) getActivity().getApplicationContext();
+        encryptionEnabled = application.getSessionManager().isCreated(username);
+    }
 
     // We actually need to make a layout for this fragment, so we override this method and return
     // the view containing our inflated layout
@@ -97,7 +134,6 @@ public class MessageListFragment extends Fragment {
 
 
         // get the arguements and start loading the data and filling the list
-        threadId = getArguments().getLong(EXTRA_THREAD_ID);
         new GetMessages().execute();
 
         // set the functionality of the send button
@@ -109,32 +145,34 @@ public class MessageListFragment extends Fragment {
             }
         });
 
-        final EditText input = new EditText(getActivity());
-        new AlertDialog.Builder(getActivity())
-                .setView(input)
-                .setTitle("New Encrypted Conversations")
-                .setMessage("Ready to start a new encrypted conversation with this person? Enter " +
-                "their phone number.")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        RegistrationUtils utils = new RegistrationUtils();
-                        DatabaseHelper helper = new DatabaseHelper(getActivity());
-                        final long currentUserId = utils.getMyUserId(getActivity());
-                        final User currentUser = helper.findUser(currentUserId);
+        if (!encryptionEnabled) {
+            final EditText input = new EditText(getActivity());
+            new AlertDialog.Builder(getActivity())
+                    .setView(input)
+                    .setTitle("New Encrypted Conversations")
+                    .setMessage("Ready to start a new encrypted conversation with this person? Enter " +
+                            "their phone number.")
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            RegistrationUtils utils = new RegistrationUtils();
+                            DatabaseHelper helper = new DatabaseHelper(getActivity());
+                            final long currentUserId = utils.getMyUserId(getActivity());
+                            final User currentUser = helper.findUser(currentUserId);
 
-                        String text = input.getText().toString();
-                        SmsManager manager = SmsManager.getDefault();
-                        manager.sendTextMessage(text, null, "Hey from encrypted chat, want to " +
-                                "start a conversation with " + currentUser.getUsername() + "?",
-                                null, null);
+                            String text = input.getText().toString();
+                            SmsManager manager = SmsManager.getDefault();
+                            manager.sendTextMessage(text, null, "Hey from encrypted chat, want to " +
+                                            "start a conversation with " + currentUser.getUsername() + "?",
+                                    null, null);
 
-                        progressDialog = new ProgressDialog(getActivity());
-                        progressDialog.setMessage("Waiting for response...");
-                        progressDialog.show();
-                    }
-                })
-                .show();
+                            progressDialog = new ProgressDialog(getActivity());
+                            progressDialog.setMessage("Waiting for response...");
+                            progressDialog.show();
+                        }
+                    })
+                    .show();
+        }
 
         // return the view that we inflated
         return v;
@@ -150,12 +188,18 @@ public class MessageListFragment extends Fragment {
 
         getActivity().registerReceiver(sentBroadcastReceiver, filter);
 
+        IntentFilter registeredFilter =
+                new IntentFilter(SmsBroadcastReceiver.BROADCAST_CONVERSATION_INITIALIZED);
+
+        getActivity().registerReceiver(encryptionReceiver, registeredFilter);
+
         new GetMessages().execute();
     }
 
     @Override
     public void onPause() {
         getActivity().unregisterReceiver(sentBroadcastReceiver);
+        getActivity().unregisterReceiver(encryptionReceiver);
         
         super.onPause();
     }
@@ -165,6 +209,7 @@ public class MessageListFragment extends Fragment {
     // which is picked up by our receiver to update the list.
     private void sendMessage(String message) {
         sender.sendThreadedMessage(
+                username,
                 threadId,
                 registrationUtils.getMyUserId(getActivity()),
                 message

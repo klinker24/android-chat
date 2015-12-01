@@ -75,6 +75,8 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 String[] messageParts = message.split(" ");
                 String user = messageParts[messageParts.length - 1].replace("?", "");
 
+                Log.v(TAG, "request is from " + user);
+
                 ChatApplication application = (ChatApplication) context.getApplicationContext();
                 SessionManager manager = application.getSessionManager();
                 Distributable distributable = manager.initReceiverSession(user);

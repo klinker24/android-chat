@@ -16,10 +16,14 @@
 
 package com.uiowa.chat.encryption;
 
+import android.util.Base64;
 import org.whispersystems.libaxolotl.IdentityKey;
+import org.whispersystems.libaxolotl.ecc.DjbECPublicKey;
 import org.whispersystems.libaxolotl.ecc.ECKeyPair;
 import org.whispersystems.libaxolotl.ecc.ECPublicKey;
 import org.whispersystems.libaxolotl.state.PreKeyBundle;
+
+import java.lang.reflect.Constructor;
 
 public class Distributable {
 
@@ -38,15 +42,15 @@ public class Distributable {
         builder.append(",");
         builder.append(preKey.getPreKeyId());
         builder.append(",");
-        builder.append(new String(((DjbECPublicKey) preKey.getPreKey()).getPublicKey()));
+        builder.append(Base64.encodeToString(((DjbECPublicKey) preKey.getPreKey()).getPublicKey(), 0));
         builder.append(",");
         builder.append(preKey.getSignedPreKeyId());
         builder.append(",");
-        builder.append(new String(((DjbECPublicKey) preKey.getSignedPreKey()).getPublicKey()));
+        builder.append(Base64.encodeToString(((DjbECPublicKey) preKey.getSignedPreKey()).getPublicKey(), 0));
         builder.append(",");
-        builder.append(new String(preKey.getSignedPreKeySignature()));
+        builder.append(Base64.encodeToString(preKey.getSignedPreKeySignature(), 0));
         builder.append(",");
-        builder.append(new String(((DjbECPublicKey) preKey.getIdentityKey().getPublicKey()).getPublicKey()));
+        builder.append(Base64.encodeToString(((DjbECPublicKey) preKey.getIdentityKey().getPublicKey()).getPublicKey(), 0));
 
         return builder.toString();
     }
@@ -58,16 +62,26 @@ public class Distributable {
         int registrationId = Integer.parseInt(parts[0]);
         int deviceId = Integer.parseInt(parts[1]);
         int preKeyId = Integer.parseInt(parts[2]);
-        ECPublicKey preKeyPublic = new DjbECPublicKey(parts[3].getBytes());
+        ECPublicKey preKeyPublic = createPublicKey(Base64.decode(parts[3], 0));
         int signedPreKey = Integer.parseInt(parts[4]);
-        ECPublicKey signedPreKeyPublic = new DjbECPublicKey(parts[5].getBytes());
-        byte[] signedPreKeySignature = parts[6].getBytes();
-        IdentityKey identityKey = new IdentityKey(new DjbECPublicKey(parts[7].getBytes()));
+        ECPublicKey signedPreKeyPublic = createPublicKey(Base64.decode(parts[5], 0));
+        byte[] signedPreKeySignature = Base64.decode(parts[6], 0);
+        IdentityKey identityKey = new IdentityKey(createPublicKey(Base64.decode(parts[7], 0)));
 
         distributable.preKey = new PreKeyBundle(registrationId, deviceId, preKeyId, preKeyPublic,
                 signedPreKey, signedPreKeyPublic, signedPreKeySignature, identityKey);
 
         return distributable;
+    }
+
+    private static DjbECPublicKey createPublicKey(byte[] bytes) {
+        try {
+            Constructor constructor = DjbECPublicKey.class.getDeclaredConstructor(byte[].class);
+            constructor.setAccessible(true);
+            return (DjbECPublicKey) constructor.newInstance(bytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't construct object", e);
+        }
     }
 
 }

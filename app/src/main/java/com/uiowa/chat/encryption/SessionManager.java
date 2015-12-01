@@ -16,6 +16,8 @@
 
 package com.uiowa.chat.encryption;
 
+import android.util.Base64;
+
 import org.whispersystems.libaxolotl.AxolotlAddress;
 
 public class SessionManager {
@@ -38,7 +40,7 @@ public class SessionManager {
             session.initSession(distributable, new AxolotlAddress(senderAddress, 1));
             return distributable;
         } catch (Exception e) {
-            throw new RuntimeException("failed to initialize receiver session");
+            throw new RuntimeException("failed to initialize receiver session", e);
         }
     }
 
@@ -48,19 +50,19 @@ public class SessionManager {
         try {
             session.initSession(distributable, new AxolotlAddress(receiverAddress, 1));
         } catch (Exception e) {
-            throw new RuntimeException("failed to initialize receiver session");
+            throw new RuntimeException("failed to initialize receiver session", e);
         }
     }
 
     public String encrypt(String message) {
-        return new String(session.encryptMessage(message));
+        return Base64.encodeToString(session.encryptMessage(message), 0);
     }
 
     public String decrypt(String message) {
         try {
-            return session.decryptMessage(message.getBytes());
+            return session.decryptMessage(Base64.decode(message, 0));
         } catch (Exception e) {
-            throw new RuntimeException("failed to decrypt message");
+            throw new RuntimeException("failed to decrypt message", e);
         }
     }
 

@@ -1,10 +1,13 @@
 package com.uiowa.chat.activities;
 
+import android.Manifest;
 import android.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,6 +70,15 @@ public class ConversationListActivity extends GCMRegisterActivity {
         FragmentTransaction trans = getFragmentManager().beginTransaction();
         trans.replace(R.id.conversation_fragment, conversationFragment);
         trans.commit();
+
+        // marshmallow, request the necessary permissions)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permissionCheck = checkSelfPermission(Manifest.permission.SEND_SMS);
+
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[] {Manifest.permission.SEND_SMS}, 1);
+            }
+        }
     }
 
     @Override

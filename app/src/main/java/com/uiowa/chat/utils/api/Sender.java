@@ -4,6 +4,7 @@ package com.uiowa.chat.utils.api;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -93,10 +94,11 @@ public class Sender extends BaseUtils {
         doInBackground(new Runnable() {
             @Override
             public void run() {
-                // TODO encode the message based on the current session
                 ChatApplication application = (ChatApplication) context.getApplicationContext();
                 SessionManager manager = application.getSessionManager();
                 String encryptedMessage = manager.encrypt(message);
+
+                Log.v(TAG, "encoded message to send: " + encryptedMessage);
 
                 // returns a json element of the message we just sent
                 JsonElement o = messaging.sendThreadedMessage(threadId, senderId, encryptedMessage);

@@ -26,6 +26,8 @@ import com.uiowa.chat.encryption.SessionManager;
 import com.uiowa.chat.receivers.PushNotificationReceiver;
 import com.uiowa.chat.utils.api.Sender;
 
+import java.net.URLDecoder;
+
 /**
  * This service will handle the push notifications for new messages
  *
@@ -42,6 +44,7 @@ import com.uiowa.chat.utils.api.Sender;
  */
 public class PushNotificationService extends IntentService {
 
+    private static final String TAG = "PushNotificationService";
     private static final int ADMIN_MESSAGE_THREAD_ID = -1;
 
     public static final int ADMIN_NOTIFICATION_ID = 1;
@@ -59,14 +62,15 @@ public class PushNotificationService extends IntentService {
             ChatApplication application = (ChatApplication) getApplicationContext();
             SessionManager manager = application.getSessionManager();
 
+            Log.v(TAG, "original message: " + extras.getString("message"));
+            Log.v(TAG, "decoded message: " + extras.getString("message").replace(" ", "+"));
+
             // each push notification contains the message details
-            String message = manager.decrypt(extras.getString("message"));
+            String message = manager.decrypt(extras.getString("message").replace(" ", "+"));
             Long threadId = Long.parseLong(extras.getString("thread_id"));
             Long time = Long.parseLong(extras.getString("time"));
             Long messageId = Long.parseLong(extras.getString("message_id"));
             Long senderId = Long.parseLong(extras.getString("sender_id"));
-
-            message = java.net.URLDecoder.decode(message, "UTF-8");
 
             if (!handledAdminMessage(threadId, message)) {
 

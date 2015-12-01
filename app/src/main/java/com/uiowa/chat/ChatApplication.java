@@ -39,7 +39,7 @@ public class ChatApplication extends Application {
             field.setAccessible(true);
             field.set(null, Boolean.FALSE);
         } catch (Exception ex) {
-            ex.printStackTrace();
+
         }
     }
 

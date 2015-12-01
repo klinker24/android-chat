@@ -158,6 +158,12 @@ public class ConversationFragment extends ListFragment {
     private List<Thread> getSortedList(List<Thread> threads) {
         Collections.sort(threads, new Comparator<Thread>() {
             public int compare(Thread result1, Thread result2) {
+                if (result1.getLatestMessage() == null) {
+                    return -1;
+                } else if (result2.getLatestMessage() == null) {
+                    return 1;
+                }
+
                 long time1 = result1.getLatestMessage().getTimestamp();
                 long time2 = result2.getLatestMessage().getTimestamp();
 

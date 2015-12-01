@@ -1,7 +1,11 @@
 package com.uiowa.chat.activities;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -9,7 +13,9 @@ import android.widget.ImageButton;
 
 import com.uiowa.chat.R;
 import com.uiowa.chat.data.DatabaseHelper;
+import com.uiowa.chat.data.Thread;
 import com.uiowa.chat.data.User;
+import com.uiowa.chat.fragments.MessageListFragment;
 import com.uiowa.chat.utils.RegistrationUtils;
 import com.uiowa.chat.utils.api.Sender;
 
@@ -28,6 +34,8 @@ import java.util.Map;
  *           custom auto complete classes.
  */
 public class NewMessageActivity extends AbstractToolbarActivity {
+
+    private static final String TAG = "NewMessageActivity";
 
     private AutoCompleteTextView userAutoComplete;
     private EditText messageText;
@@ -65,10 +73,10 @@ public class NewMessageActivity extends AbstractToolbarActivity {
 
                     // send the message in the background thread.
                     // after the message is successfully sent, the Sender will send a broadcast for the fragments to update
-                    // with the action Sender.SEMT_BROADCAST.
+                    // with the action Sender.SENT_BROADCAST.
                     // we should listen for this broadcast on our fragments and update when necessary.
                     Sender sender = new Sender(NewMessageActivity.this);
-                    sender.sendNewMessage(sendTo.getUserId(), registrationUtils.getMyUserId(NewMessageActivity.this), messageText.getText().toString());
+                    sender.sendNewMessage(sendTo.getUserId(), registrationUtils.getMyUserId(NewMessageActivity.this), messageText.getText().toString(), null);
 
                     // we don't want to keep the user waiting on the new message screen, so finish this
                     // activity and kick them back to the conversation list.
@@ -93,6 +101,56 @@ public class NewMessageActivity extends AbstractToolbarActivity {
 
         userAutoComplete.setThreshold(1);
         userAutoComplete.setAdapter(adapter);
+        userAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                RegistrationUtils utils = new RegistrationUtils();
+                final long currentUserId = utils.getMyUserId(NewMessageActivity.this);
+                final DatabaseHelper helper = new DatabaseHelper(NewMessageActivity.this);
+
+                User user = userNameMap.get(userAutoComplete.getText().toString());
+                List<Thread> threads = helper.findAllConversations();
+                Thread thread = null;
+                for (Thread t : threads) {
+                    if (t.getUser1Id() == user.getUserId() || t.getUser2Id() == user.getUserId()) {
+                        thread = t;
+                        break;
+                    }
+                }
+
+                if (thread == null) {
+                    final ProgressDialog dialog = new ProgressDialog(NewMessageActivity.this);
+                    dialog.setMessage("Creating new conversation...");
+                    dialog.show();
+
+                    // create a new thread for this conversation to be on, then start the activity
+                    Sender sender = new Sender(NewMessageActivity.this);
+                    sender.sendNewMessage(user.getUserId(), currentUserId, " ", new Sender.MessageSentListener() {
+                        @Override
+                        public void onMessageSent(long threadId) {
+                            dialog.hide();
+                            Thread thread = helper.findConversation(threadId);
+                            startConversationActivity(thread, currentUserId);
+                        }
+                    });
+                } else {
+                    startConversationActivity(thread, currentUserId);
+                }
+            }
+        });
+    }
+
+    private void startConversationActivity(Thread thread, long currentUserId) {
+        Intent messageList = new Intent(NewMessageActivity.this, MessageListActivity.class);
+        messageList.putExtra(MessageListFragment.EXTRA_THREAD_ID, thread.getThreadId());
+
+        if (thread.getUser1Id() == currentUserId) {
+            messageList.putExtra(MessageListFragment.EXTRA_CONVO_NAME, thread.getUser2().getRealName());
+        } else {
+            messageList.putExtra(MessageListFragment.EXTRA_CONVO_NAME, thread.getUser1().getRealName());
+        }
+
+        startActivity(messageList);
     }
 
     private List<User> getUserList() {

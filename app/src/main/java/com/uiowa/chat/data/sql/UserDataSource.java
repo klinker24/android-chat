@@ -180,7 +180,7 @@ public class UserDataSource {
         return database.query(
                 UserSQLiteHelper.TABLE_USER,
                 allColumns,
-                UserSQLiteHelper.COLUMN_ID + " = ?", new String[] { username + "" },
+                UserSQLiteHelper.COLUMN_USERNAME + " = ?", new String[] { username + "" },
                 null, null, null
         );
     }

@@ -3,6 +3,7 @@ package com.uiowa.chat.utils.api;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -48,7 +49,10 @@ public class Sender extends BaseUtils {
     }
 
     // used when we are on the NewMessageActivity to create a new thread with a user
-    public void sendNewMessage(final Long recipientId, final Long senderId, final String message) {
+    public void sendNewMessage(final Long recipientId, final Long senderId, final String message,
+                               final MessageSentListener listener) {
+        final Handler handler = new Handler();
+
         doInBackground(new Runnable() {
             @Override
             public void run() {
@@ -60,13 +64,22 @@ public class Sender extends BaseUtils {
                     // message that was send. We can use the client's api objects to make a data call
                     // and find the data
 
-                    long threadId = o.getAsLong();
+                    final long threadId = o.getAsLong();
                     JsonObject threadObject = thread.findThread(threadId);
                     JsonArray threadMessages = messaging.findMessages(threadId);
 
                     // save them to the database
                     ThreadDataSource.getInstance(context).createThread(threadObject);
                     MessageDataSource.getInstance(context).createMessages(threadMessages);
+
+                    if (listener != null) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onMessageSent(threadId);
+                            }
+                        });
+                    }
                 }
 
                 logObject(o);
@@ -114,5 +127,9 @@ public class Sender extends BaseUtils {
     // we dont handle this broadcast anywhere yet, but could if we needed error handling
     private void sendFailedBroadcast() {
         context.sendBroadcast(new Intent(FAILED_BROADCAST));
+    }
+
+    public interface MessageSentListener {
+        void onMessageSent(long threadId);
     }
 }

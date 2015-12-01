@@ -32,14 +32,14 @@ public class Runner {
         print 'User 2 name: '
         AxolotlAddress user2 = new AxolotlAddress(reader.readLine(), 1)
 
-        SenderSession user1Session = new SenderSession()
-        ReceiverSession user2Session = new ReceiverSession()
+        SenderSession sender = new SenderSession()
+        ReceiverSession receiver = new ReceiverSession()
 
-        user1Session.requestPreKey()
-        Distributable distributable = user2Session.generatePreKey()
+        sender.requestPreKey()
+        Distributable distributable = receiver.generatePreKey()
 
-        user1Session.initSession(distributable, user2)
-        user2Session.initSession(distributable, user1)
+        sender.initSession(distributable, user2)
+        receiver.initSession(distributable, user1)
 
         String message = null
         boolean sendUser1 = true
@@ -53,9 +53,9 @@ public class Runner {
             }
 
             if (sendUser1) {
-                message = user2Session.decryptMessage(user1Session.encryptMessage(message))
+                message = receiver.decryptMessage(sender.encryptMessage(message))
             } else {
-                message = user1Session.decryptMessage(user2Session.encryptMessage(message))
+                message = sender.decryptMessage(receiver.encryptMessage(message))
             }
 
             println "${sendUser1 ? user2.name : user1.name} received: ${message}\n"
@@ -70,7 +70,7 @@ public class Runner {
             Field field = Class.forName("javax.crypto.JceSecurity").
                     getDeclaredField("isRestricted")
             field.setAccessible(true)
-            field.set(null, java.lang.Boolean.FALSE)
+            field.set(null, Boolean.FALSE)
         } catch (Exception ex) {
             ex.printStackTrace()
         }

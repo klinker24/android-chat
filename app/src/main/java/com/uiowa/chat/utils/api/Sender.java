@@ -8,11 +8,13 @@ import android.os.Handler;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.uiowa.chat.ChatApplication;
 import com.uiowa.chat.api_objects.MessagingApi;
 import com.uiowa.chat.api_objects.ThreadApi;
 import com.uiowa.chat.api_objects.UserApi;
 import com.uiowa.chat.data.sql.ThreadDataSource;
 import com.uiowa.chat.data.sql.MessageDataSource;
+import com.uiowa.chat.encryption.SessionManager;
 import com.uiowa.chat.utils.BaseUtils;
 
 /**
@@ -91,9 +93,14 @@ public class Sender extends BaseUtils {
         doInBackground(new Runnable() {
             @Override
             public void run() {
+                // TODO encode the message based on the current session
+                ChatApplication application = (ChatApplication) context.getApplicationContext();
+                SessionManager manager = application.getSessionManager();
+                String encryptedMessage = manager.encrypt(message);
+
                 // returns a json element of the message we just sent
-                JsonElement o = messaging.sendThreadedMessage(threadId, senderId, message);
-                MessageDataSource.getInstance(context).createMessage(o.getAsJsonObject());
+                JsonElement o = messaging.sendThreadedMessage(threadId, senderId, encryptedMessage);
+                MessageDataSource.getInstance(context).createMessage(o.getAsJsonObject(), message);
 
                 logObject(o);
             }

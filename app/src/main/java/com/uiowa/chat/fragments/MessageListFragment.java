@@ -1,14 +1,18 @@
 package com.uiowa.chat.fragments;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ListFragment;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +24,7 @@ import com.uiowa.chat.R;
 import com.uiowa.chat.adapters.MessageArrayAdapter;
 import com.uiowa.chat.data.DatabaseHelper;
 import com.uiowa.chat.data.Message;
+import com.uiowa.chat.data.User;
 import com.uiowa.chat.data.sql.MessageDataSource;
 import com.uiowa.chat.utils.RegistrationUtils;
 import com.uiowa.chat.utils.api.Sender;
@@ -72,6 +77,7 @@ public class MessageListFragment extends Fragment {
     private ListView listView;
     private EditText replyBar;
     private ImageButton sendButton;
+    private ProgressDialog progressDialog;
 
     // We actually need to make a layout for this fragment, so we override this method and return
     // the view containing our inflated layout
@@ -99,9 +105,36 @@ public class MessageListFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 sendMessage(replyBar.getText().toString());
-                replyBar.setText("");
+                replyBar.setText(null);
             }
         });
+
+        final EditText input = new EditText(getActivity());
+        new AlertDialog.Builder(getActivity())
+                .setView(input)
+                .setTitle("New Encrypted Conversations")
+                .setMessage("Ready to start a new encrypted conversation with this person? Enter " +
+                "their phone number.")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        RegistrationUtils utils = new RegistrationUtils();
+                        DatabaseHelper helper = new DatabaseHelper(getActivity());
+                        final long currentUserId = utils.getMyUserId(getActivity());
+                        final User currentUser = helper.findUser(currentUserId);
+
+                        String text = input.getText().toString();
+                        SmsManager manager = SmsManager.getDefault();
+                        manager.sendTextMessage(text, null, "Hey from encrypted chat, want to " +
+                                "start a conversation with " + currentUser.getUsername() + "?",
+                                null, null);
+
+                        progressDialog = new ProgressDialog(getActivity());
+                        progressDialog.setMessage("Waiting for response...");
+                        progressDialog.show();
+                    }
+                })
+                .show();
 
         // return the view that we inflated
         return v;

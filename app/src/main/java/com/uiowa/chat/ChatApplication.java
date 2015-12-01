@@ -2,9 +2,13 @@ package com.uiowa.chat;
 
 import android.app.Application;
 
+import com.uiowa.chat.encryption.SessionManager;
+
 import java.lang.reflect.Field;
 
 public class ChatApplication extends Application {
+
+    private SessionManager sessionManager;
 
     /**
      * In this class, we could do things like cache management or some data loading.
@@ -15,6 +19,12 @@ public class ChatApplication extends Application {
     public void onCreate() {
         super.onCreate();
         enableSecurity();
+
+        sessionManager = new SessionManager();
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
     }
 
     /**
@@ -27,7 +37,7 @@ public class ChatApplication extends Application {
             Field field = Class.forName("javax.crypto.JceSecurity").
                     getDeclaredField("isRestricted");
             field.setAccessible(true);
-            field.set(null, java.lang.Boolean.FALSE);
+            field.set(null, Boolean.FALSE);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

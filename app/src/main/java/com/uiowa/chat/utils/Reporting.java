@@ -12,7 +12,7 @@ import android.util.Log;
  * There is also a notification that can be sent.
  */
 public class Reporting {
-    private static String TAG = "SAIChatError";
+    private static String TAG = "UIowaChatLogging";
 
     public static void log(String message) {
         Log.v(TAG, message);

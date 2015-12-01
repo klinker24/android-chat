@@ -101,8 +101,8 @@ public class MessageDataSource {
                 values);
     }
 
-    public synchronized void createMessage(JsonObject message) {
-        ContentValues values = getValues(message);
+    public synchronized void createMessage(JsonObject message, String plaintext) {
+        ContentValues values = getValues(message, plaintext);
 
         database.insert(
                 MessageSQLiteHelper.TABLE_MESSAGE,
@@ -121,19 +121,19 @@ public class MessageDataSource {
         ContentValues[] values = new ContentValues[messages.size()];
         for (int i = 0; i < values.length; i++) {
             JsonElement e = messages.get(i);
-            values[i] = getValues(e.getAsJsonObject());
+            values[i] = getValues(e.getAsJsonObject(), "encrypted message");
         }
 
         insertMultiple(values);
     }
 
-    public ContentValues getValues(JsonObject message) {
+    public ContentValues getValues(JsonObject message, String plaintext) {
         ContentValues values = new ContentValues();
 
         values.put(MessageSQLiteHelper.COLUMN_ID, message.get("id").getAsLong());
         values.put(MessageSQLiteHelper.COLUMN_THREAD_ID, message.get("threadId").getAsLong());
         values.put(MessageSQLiteHelper.COLUMN_TIME, message.get("time").getAsLong());
-        values.put(MessageSQLiteHelper.COLUMN_TEXT, message.get("text").getAsString());
+        values.put(MessageSQLiteHelper.COLUMN_TEXT, plaintext);
         values.put(MessageSQLiteHelper.COLUMN_SENDER_ID, message.get("senderId").getAsLong());
 
         return values;

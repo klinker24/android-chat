@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.uiowa.chat.ChatApplication;
 import com.uiowa.chat.R;
 import com.uiowa.chat.activities.ConversationListActivity;
 import com.uiowa.chat.api_objects.ThreadApi;
@@ -21,6 +22,7 @@ import com.uiowa.chat.data.Message;
 import com.uiowa.chat.data.sql.ThreadDataSource;
 import com.uiowa.chat.data.sql.MessageDataSource;
 import com.uiowa.chat.data.sql.UserDataSource;
+import com.uiowa.chat.encryption.SessionManager;
 import com.uiowa.chat.receivers.PushNotificationReceiver;
 import com.uiowa.chat.utils.api.Sender;
 
@@ -54,8 +56,11 @@ public class PushNotificationService extends IntentService {
         try {
             Bundle extras = intent.getExtras();
 
+            ChatApplication application = (ChatApplication) getApplicationContext();
+            SessionManager manager = application.getSessionManager();
+
             // each push notification contains the message details
-            String message = extras.getString("message");
+            String message = manager.decrypt(extras.getString("message"));
             Long threadId = Long.parseLong(extras.getString("thread_id"));
             Long time = Long.parseLong(extras.getString("time"));
             Long messageId = Long.parseLong(extras.getString("message_id"));

@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.google.gson.JsonArray;
@@ -14,6 +16,7 @@ import com.google.gson.JsonObject;
 import com.uiowa.chat.ChatApplication;
 import com.uiowa.chat.R;
 import com.uiowa.chat.activities.ConversationListActivity;
+import com.uiowa.chat.activities.MessageListActivity;
 import com.uiowa.chat.api_objects.ThreadApi;
 import com.uiowa.chat.api_objects.UserApi;
 import com.uiowa.chat.data.Thread;
@@ -24,6 +27,7 @@ import com.uiowa.chat.data.sql.ThreadDataSource;
 import com.uiowa.chat.data.sql.MessageDataSource;
 import com.uiowa.chat.data.sql.UserDataSource;
 import com.uiowa.chat.encryption.SessionManager;
+import com.uiowa.chat.fragments.MessageListFragment;
 import com.uiowa.chat.receivers.PushNotificationReceiver;
 import com.uiowa.chat.receivers.SmsBroadcastReceiver;
 import com.uiowa.chat.utils.RegistrationUtils;
@@ -195,7 +199,9 @@ public class PushNotificationService extends IntentService {
         builder.setContentText(message.getText());
         builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message.getText()));
 
-        Intent resultIntent = new Intent(this, ConversationListActivity.class);
+        Intent resultIntent = new Intent(this, MessageListActivity.class);
+        resultIntent.putExtra(MessageListFragment.EXTRA_CONVO_NAME, message.getSender().getRealName());
+        resultIntent.putExtra(MessageListFragment.EXTRA_THREAD_ID, message.getThreadId());
         resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         // pending intents are used so specify the action we want for clicks on the notification
@@ -208,15 +214,35 @@ public class PushNotificationService extends IntentService {
                 );
 
         builder.setContentIntent(resultPendingIntent);
+        builder.setAutoCancel(true);
+
+        RemoteInput remoteInput = new RemoteInput.Builder(ReplyService.EXTRA_VOICE_REPLY)
+                .setLabel("Reply")
+                .build();
+
+        Intent replyIntent = new Intent(this, ReplyService.class);
+        replyIntent.putExtra(ReplyService.EXTRA_THREAD_ID, message.getThreadId());
+        replyIntent.putExtra(ReplyService.EXTRA_USERNAME, message.getSender().getUsername());
+        PendingIntent replyPendingIntent =
+                PendingIntent.getService(this, 0, replyIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Create the reply action and add the remote input
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(R.drawable.ic_reply,
+                        "Reply", replyPendingIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
+
+        builder.extend(new NotificationCompat.WearableExtender().addAction(action));
 
         sendNotification(builder, MESSAGE_NOTIFICATION_ID);
     }
 
     private void sendNotification(NotificationCompat.Builder builder, int id) {
         // the notification manager service sends the notification to the system
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.notify(id, builder.build());
+        NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+        manager.notify(id, builder.build());
     }
 
     // send a broadcast to refresh the currently open fragment (if there is one, remember that

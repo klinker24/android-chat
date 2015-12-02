@@ -82,6 +82,8 @@
         </receiver>
 
         <service android:name=".services.PushNotificationService" />
+
+        <service android:name=".services.ReplyService" />
                    
     </application>
 </manifest>

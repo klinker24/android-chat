@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">UIowa Chat</string>
+    <string name="app_name">Encrypto</string>
     <string name="registration_complete">Registration Complete</string>
     <string name="login">Login</string>
     <string name="screen_name_hint">Username</string>

@@ -25,6 +25,8 @@ import com.uiowa.chat.data.sql.MessageDataSource;
 import com.uiowa.chat.data.sql.UserDataSource;
 import com.uiowa.chat.encryption.SessionManager;
 import com.uiowa.chat.receivers.PushNotificationReceiver;
+import com.uiowa.chat.receivers.SmsBroadcastReceiver;
+import com.uiowa.chat.utils.RegistrationUtils;
 import com.uiowa.chat.utils.api.Sender;
 
 import java.net.URLDecoder;
@@ -76,6 +78,16 @@ public class PushNotificationService extends IntentService {
             User sender = databaseHelper.findUser(senderId);
             String message = manager.decrypt(sender.getUsername(),
                     extras.getString("message").replace(" ", "+"));
+
+            if (message.equals("Establishing connection...")) {
+                Sender s = new Sender(this);
+                s.sendThreadedMessage(
+                        sender.getUsername(),
+                        threadId,
+                        new RegistrationUtils().getMyUserId(this),
+                        "Connection established."
+                );
+            }
 
             if (!handledAdminMessage(threadId, message)) {
 

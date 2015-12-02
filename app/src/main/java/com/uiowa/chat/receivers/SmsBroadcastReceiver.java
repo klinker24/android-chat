@@ -27,12 +27,15 @@ import android.util.Log;
 import com.uiowa.chat.ChatApplication;
 import com.uiowa.chat.activities.NewMessageActivity;
 import com.uiowa.chat.data.DatabaseHelper;
+import com.uiowa.chat.data.Thread;
 import com.uiowa.chat.data.User;
 import com.uiowa.chat.encryption.Distributable;
 import com.uiowa.chat.encryption.SessionManager;
 import com.uiowa.chat.utils.RegistrationUtils;
+import com.uiowa.chat.utils.api.Sender;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles receiving sms and sending back the prekey information when needed
@@ -108,6 +111,23 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
                 SessionManager manager = application.getSessionManager();
                 manager.initSenderSession(Distributable.parseString(message), user);
                 Log.v(TAG, "initialized sending session, ready to send messages");
+
+                List<Thread> conversations = helper.findAllConversations();
+                long threadId = 0;
+                for (Thread thread : conversations) {
+                    if (thread.getUser1().getUsername().equals(user)
+                            || thread.getUser2().getUsername().equals(user)) {
+                        threadId = thread.getThreadId();
+                    }
+                }
+
+                Sender s = new Sender(context);
+                s.sendThreadedMessage(
+                        user,
+                        threadId,
+                        new RegistrationUtils().getMyUserId(context),
+                        "Establishing connection..."
+                );
 
                 context.sendBroadcast(new Intent(BROADCAST_CONVERSATION_INITIALIZED));
             }

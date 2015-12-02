@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -92,6 +93,8 @@ public class Sender extends BaseUtils {
 
     public void sendThreadedMessage(final String toUsername, final Long threadId,
                                     final Long senderId, final String message) {
+        final Handler handler = new Handler();
+
         doInBackground(new Runnable() {
             @Override
             public void run() {
@@ -102,10 +105,18 @@ public class Sender extends BaseUtils {
                 Log.v(TAG, "encoded message to send: " + encryptedMessage);
 
                 // returns a json element of the message we just sent
-                JsonElement o = messaging.sendThreadedMessage(threadId, senderId, encryptedMessage);
-                MessageDataSource.getInstance(context).createMessage(o.getAsJsonObject(), message);
-
-                logObject(o);
+                try {
+                    JsonElement o = messaging.sendThreadedMessage(threadId, senderId, encryptedMessage);
+                    MessageDataSource.getInstance(context).createMessage(o.getAsJsonObject(), message);
+                    logObject(o);
+                } catch (Exception e) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "Message too long to send! :(", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
     }

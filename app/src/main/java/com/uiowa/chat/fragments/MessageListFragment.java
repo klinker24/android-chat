@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.telephony.SmsManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.uiowa.chat.data.sql.MessageDataSource;
 import com.uiowa.chat.receivers.SmsBroadcastReceiver;
 import com.uiowa.chat.utils.RegistrationUtils;
 import com.uiowa.chat.utils.api.Sender;
+import com.uiowa.chat.views.MessageListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,11 +91,12 @@ public class MessageListFragment extends Fragment {
     private long threadId;
     private String username;
 
-    private ListView listView;
+    private MessageListView listView;
     private EditText replyBar;
     private ImageButton sendButton;
     private ProgressDialog progressDialog;
     private boolean encryptionEnabled;
+    private int mLastSmoothScrollPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -128,7 +131,7 @@ public class MessageListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_message_list, container, false);
 
         // find the views from the inflated layout
-        listView = (ListView) v.findViewById(R.id.listview);
+        listView = (MessageListView) v.findViewById(R.id.listview);
         replyBar = (EditText) v.findViewById(R.id.reply_text);
         sendButton = (ImageButton) v.findViewById(R.id.send_button);
 
@@ -219,6 +222,13 @@ public class MessageListFragment extends Fragment {
     private void setMessageAdapter(List<Message> messages) {
         MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), messages);
         listView.setAdapter(adapter);
+        smoothScrollToEnd(true, 0);
+
+        listView.setOnSizeChangedListener(new MessageListView.OnSizeChangedListener() {
+            public void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
+                smoothScrollToEnd(false, height - oldHeight);
+            }
+        });
     }
 
     /*
@@ -233,6 +243,54 @@ public class MessageListFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Message> result) {
             setMessageAdapter(result);
+        }
+    }
+
+    private void smoothScrollToEnd(boolean force, int listSizeChange) {
+        int lastItemVisible = listView.getLastVisiblePosition();
+        int lastItemInList = listView.getAdapter().getCount() - 1;
+        if (lastItemVisible < 0 || lastItemInList < 0) {
+            return;
+        }
+
+        if (lastItemVisible < lastItemInList - 3) {
+            return;
+        }
+
+        View lastChildVisible =
+                listView.getChildAt(lastItemVisible - listView.getFirstVisiblePosition());
+        int lastVisibleItemBottom = 0;
+        int lastVisibleItemHeight = 0;
+        if (lastChildVisible != null) {
+            lastVisibleItemBottom = lastChildVisible.getBottom();
+            lastVisibleItemHeight = lastChildVisible.getHeight();
+        }
+
+        int listHeight = listView.getHeight();
+        boolean lastItemTooTall = lastVisibleItemHeight > listHeight;
+        boolean willScroll = force ||
+                ((listSizeChange != 0 || lastItemInList != mLastSmoothScrollPosition) &&
+                        lastVisibleItemBottom + listSizeChange - 200 <=
+                                listHeight - listView.getPaddingBottom());
+        if (willScroll || (lastItemTooTall && lastItemInList == lastItemVisible)) {
+            if (Math.abs(listSizeChange) > 200) {
+                if (lastItemTooTall) {
+                    listView.setSelectionFromTop(lastItemInList,
+                            listHeight - lastVisibleItemHeight);
+                } else {
+                    listView.setSelection(lastItemInList);
+                }
+            } else if (lastItemInList - lastItemVisible > 20) {
+                listView.setSelection(lastItemInList);
+            } else {
+                if (lastItemTooTall) {
+                    listView.setSelectionFromTop(lastItemInList,
+                            listHeight - lastVisibleItemHeight);
+                } else {
+                    listView.smoothScrollToPosition(lastItemInList);
+                }
+                mLastSmoothScrollPosition = lastItemInList;
+            }
         }
     }
 }

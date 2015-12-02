@@ -108,10 +108,15 @@ public class MessageArrayAdapter extends ArrayAdapter<Message> {
 
         // gravity based on whether the current user sent the message or not
         // gravity in the parent will change the alignment for the message TextView
+        int padding = context.getResources().getDimensionPixelSize(R.dimen.message_padding);
         if (message.getSenderId() == userId) {
             holder.parent.setGravity(Gravity.RIGHT);
+            holder.message.setGravity(Gravity.RIGHT);
+            holder.message.setPadding(padding, 0, 0, 0);
         } else {
             holder.parent.setGravity(Gravity.LEFT);
+            holder.message.setGravity(Gravity.LEFT);
+            holder.message.setPadding(0, 0, padding, 0);
         }
 
         // set the message messageText

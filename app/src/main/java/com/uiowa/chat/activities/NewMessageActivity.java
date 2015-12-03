@@ -150,6 +150,7 @@ public class NewMessageActivity extends AbstractToolbarActivity {
             messageList.putExtra(MessageListFragment.EXTRA_CONVO_NAME, thread.getUser1().getRealName());
         }
 
+        finish();
         startActivity(messageList);
     }
 

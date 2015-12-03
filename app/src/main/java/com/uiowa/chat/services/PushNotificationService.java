@@ -2,6 +2,7 @@ package com.uiowa.chat.services;
 
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -186,6 +187,8 @@ public class PushNotificationService extends IntentService {
                 );
 
         builder.setContentIntent(resultPendingIntent);
+
+        builder.setDefaults(Notification.DEFAULT_ALL);
 
         sendNotification(builder, ADMIN_NOTIFICATION_ID);
     }

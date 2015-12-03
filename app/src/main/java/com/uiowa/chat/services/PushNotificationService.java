@@ -166,7 +166,7 @@ public class PushNotificationService extends IntentService {
 
 
         builder.setSmallIcon(R.drawable.sb_icon);
-        builder.setContentTitle("SAI Message");
+        builder.setContentTitle("Encrypto");
         builder.setContentText(message);
 
         // creating a "Big Style" from our text allows the notification to be expanded on 4.1+
